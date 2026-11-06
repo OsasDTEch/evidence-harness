@@ -24,7 +24,7 @@ class Report:
         return all(c["ok"] for c in self.checks)
 
 
-def verify_run(run_dir: Path, ledger_path: Path | None = None) -> Report:
+def verify_run(run_dir: Path, ledger_path: Path | None = None, anchors: list[str] | None = None) -> Report:
     run_dir = Path(run_dir)
     rep = Report()
     ledger_path = ledger_path or run_dir.parent / "ledger.jsonl"
@@ -101,4 +101,12 @@ def verify_run(run_dir: Path, ledger_path: Path | None = None) -> Report:
         "run is in ledger with matching manifest hash",
         len(mine) == 1 and mine[0]["manifest_sha256"] == manifest_file_hash,
     )
+
+    # External anchors: ledger head hashes published somewhere outside this
+    # store (a pushed git commit, an email, a timestamping service). A local
+    # attacker who rewrites the whole chain consistently cannot make an
+    # anchored hash reappear, so every anchor must still be in the chain.
+    chain = {e["entry_sha256"] for e in entries}
+    for a in anchors or []:
+        rep.add("external anchor present in ledger", a in chain, a[:16])
     return rep

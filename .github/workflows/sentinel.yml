@@ -1,0 +1,53 @@
+# Scheduled sentinel runs.
+#
+# Cadence is part of the evidence: records made as a regular practice, at or
+# near the time, are stronger than ad hoc ones. Each run is committed back to
+# the repo, so GitHub's history gives every run an outside timestamp and acts
+# as an external anchor for the ledger head.
+#
+# Uses the offline mock by default. Add a GROQ_API_KEY repository secret to
+# run against a real hosted model instead.
+
+name: sentinel
+
+on:
+  schedule:
+    - cron: "17 6 * * *"   # daily at 06:17 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sentinel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Tamper tests must pass before recording anything
+        run: python -m unittest -v
+
+      - name: Sentinel run
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          if [ -n "$GROQ_API_KEY" ]; then
+            python -m evidence_harness run suites/support_agent_controls.json \
+              --provider groq --model llama-3.3-70b-versatile --sentinel
+          else
+            python -m evidence_harness run suites/support_agent_controls.json --provider mock --sentinel
+          fi
+
+      - name: Drift check
+        run: python -m evidence_harness drift support-agent-controls || echo "::warning::drift detected"
+
+      - name: Commit the evidence
+        run: |
+          git config user.name "sentinel-bot"
+          git config user.email "sentinel-bot@users.noreply.github.com"
+          git add runs
+          git commit -m "sentinel: $(python -m evidence_harness head)"
+          git push

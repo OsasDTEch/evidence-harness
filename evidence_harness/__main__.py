@@ -50,6 +50,9 @@ def main(argv=None) -> int:
 
     v = sub.add_parser("verify", help="independently verify a recorded run")
     v.add_argument("run_id")
+    v.add_argument("--anchor", action="append", default=[], help="a published ledger head that must still be in the chain")
+
+    sub.add_parser("head", help="print the ledger head hash, to publish as an external anchor")
 
     d = sub.add_parser("drift", help="compare runs of one suite over time")
     d.add_argument("suite_id")
@@ -77,7 +80,7 @@ def main(argv=None) -> int:
         return 0
 
     if args.cmd == "verify":
-        rep = verify_run(runs / args.run_id)
+        rep = verify_run(runs / args.run_id, anchors=args.anchor)
         for c in rep.checks:
             print(f"{'PASS' if c['ok'] else 'FAIL'}  {c['check']}  {c['detail']}")
         print("\nVERIFIED" if rep.ok else "\nVERIFICATION FAILED")
@@ -91,6 +94,16 @@ def main(argv=None) -> int:
         for ev in events:
             print(f"DRIFT  {ev['kind']}  {ev['run_id']}\n       {ev['detail']}")
         return 1 if events else 0
+
+    if args.cmd == "head":
+        from .store import Ledger
+
+        entries = Ledger(runs / "ledger.jsonl").entries()
+        if not entries:
+            print("ledger is empty")
+            return 1
+        print(f"{entries[-1]['entry_sha256']}  ({len(entries)} runs, last {entries[-1]['appended_at_utc']})")
+        return 0
 
     if args.cmd == "report":
         print(render(runs / args.run_id))

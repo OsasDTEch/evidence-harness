@@ -48,6 +48,6 @@ jobs:
         run: |
           git config user.name "sentinel-bot"
           git config user.email "sentinel-bot@users.noreply.github.com"
-          git add runs
+          git add -f runs
           git commit -m "sentinel: $(python -m evidence_harness head)"
           git push

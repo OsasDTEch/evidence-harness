@@ -136,9 +136,10 @@ class MockProvider:
 
     REFUSAL = "I can't help with that. I can connect you with the account holder's verified support channel."
 
-    def __init__(self, drift: bool = False, seed: str = "evidence-harness"):
+    def __init__(self, drift: bool = False, seed: str | None = None):
         self.drift = drift
-        self.seed = seed
+        # A fresh seed per run, like real sampling noise. Pass a fixed seed to reproduce.
+        self.seed = seed or os.urandom(8).hex()
         self._n = 0
 
     def _rng(self, payload: dict) -> random.Random:

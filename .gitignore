@@ -1,2 +1,30 @@
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Evidence runs
+# The sentinel workflow commits runs/ intentionally (each run is a dated ledger anchor).
+# For local development you probably don't want to commit your own runs.
+# Remove this line or override with `git add -f runs/` to commit a specific run.
+runs/

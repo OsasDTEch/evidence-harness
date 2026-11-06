@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "evidence-harness"
+version = "0.1.0"
+description = "An eval harness that is a system of record: hash-verified, append-only, independently verifiable evidence of AI model control tests."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Omons Wisdom (Osas)", email = "omonswisdom.ict@gmail.com" }]
+requires-python = ">=3.10"
+keywords = ["llm", "eval", "evidence", "compliance", "ai-safety", "audit"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Security",
+]
+
+[project.scripts]
+evidence-harness = "evidence_harness.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/OsasDTEch/evidence-harness"
+Repository = "https://github.com/OsasDTEch/evidence-harness"
+"Bug Tracker" = "https://github.com/OsasDTEch/evidence-harness/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["evidence_harness*"]
